@@ -1,10 +1,10 @@
-#include <bits/stdc++.h>
+#include <stdio.h>
 
 int mult(int x, int y) {
   int target = 0;
-  for (int i = 0; i < x; i++)
-    target += y;
-  return y;
+  for (int i = 0; i < y; i++)
+    target += x;
+  return target;
 }
 
 int main() {
