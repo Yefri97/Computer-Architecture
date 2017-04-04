@@ -64,8 +64,24 @@ architecture Behavioral of Processor is
 		result : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
+	
+	COMPONENT Multiplexor
+	PORT(
+		input0 : IN std_logic_vector(31 downto 0);
+		input1 : IN std_logic_vector(31 downto 0);
+		cond : IN std_logic;          
+		output : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT SignExtender
+	PORT(
+		input : IN std_logic_vector(12 downto 0);          
+		output : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
 
-signal a, b, c, inst, crs1, crs2, res : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
+signal a, b, c, inst, crs1, crs2, res, roi, imm : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
 signal op : STD_LOGIC_VECTOR (5 downto 0) := "000000";
 
 begin
@@ -114,9 +130,21 @@ begin
 	
 	ALU: ArithmeticLogicUnit PORT MAP(
 		op1 => crs1,
-		op2 => crs2,
+		op2 => roi,
 		aluOp => op,
 		result => res
+	);
+	
+	MUX: Multiplexor PORT MAP(
+		input0 => crs2,
+		input1 => imm,
+		cond => inst(13),
+		output => roi
+	);
+
+	SEU: SignExtender PORT MAP(
+		input => inst(12 downto 0),
+		output => imm
 	);
 	
 	result <= res;
