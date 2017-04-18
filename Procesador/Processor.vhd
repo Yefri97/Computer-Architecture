@@ -60,7 +60,8 @@ architecture Behavioral of Processor is
 	PORT(
 		op1 : IN std_logic_vector(31 downto 0);
 		op2 : IN std_logic_vector(31 downto 0);
-		aluOp : IN std_logic_vector(5 downto 0);          
+		aluOp : IN std_logic_vector(5 downto 0);
+		C : IN  STD_LOGIC;
 		result : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -80,9 +81,31 @@ architecture Behavioral of Processor is
 		output : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
+	
+	COMPONENT ProcessorStateRegisterModifier
+	PORT(
+		msb1 : IN std_logic;
+		msb2 : IN std_logic;
+		result : IN std_logic_vector(31 downto 0);
+		aluOp : IN std_logic_vector(5 downto 0);          
+		nzvc : OUT std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT ProcessorStateRegister
+	PORT(
+		NZVC : IN std_logic_vector(3 downto 0);
+		nCWP : IN std_logic_vector(3 downto 0);          
+		C : OUT std_logic;
+		CWP : OUT std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
 
 signal a, b, c, inst, crs1, crs2, res, roi, imm : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
+signal carry : STD_LOGIC;
+signal nzvc, ncwp, cwp : STD_LOGIC_VECTOR (3 downto 0) := "0000";
 signal op : STD_LOGIC_VECTOR (5 downto 0) := "000000";
+
 
 begin
 
@@ -132,6 +155,7 @@ begin
 		op1 => crs1,
 		op2 => roi,
 		aluOp => op,
+		C => carry,
 		result => res
 	);
 	
@@ -145,6 +169,21 @@ begin
 	SEU: SignExtender PORT MAP(
 		input => inst(12 downto 0),
 		output => imm
+	);
+	
+	PSRModifier: ProcessorStateRegisterModifier PORT MAP(
+		msb1 => crs1(31),
+		msb2 => roi(31),
+		result => res,
+		aluOp => op,
+		nzvc => nzvc
+	);
+	
+	PSR: ProcessorStateRegister PORT MAP(
+		NZVC => nzvc,
+		nCWP => ncwp,
+		C => carry,
+		CWP => cwp
 	);
 	
 	result <= res;

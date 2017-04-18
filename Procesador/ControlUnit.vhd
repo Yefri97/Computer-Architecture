@@ -22,6 +22,10 @@ begin
 				when "000100" => aluOp <= "000001"; -- SUB
 				when "000010" => aluOp <= "000010"; -- OR
 				when "000001" => aluOp <= "000011"; -- AND
+				when "111100" => aluOp <= "100000"; -- ADDcc
+				when "111101" => aluOp <= "100001"; -- SUBcc
+				when "111110" => aluOp <= "100010"; -- ORcc
+				when "111011" => aluOp <= "100011"; -- ANDcc
 				when others => aluOp <= "111111";
 			end case;
 		when others => aluOp <= "111111";

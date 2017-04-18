@@ -7,6 +7,7 @@ entity ArithmeticLogicUnit is
     Port ( op1 : in  STD_LOGIC_VECTOR (31 downto 0);
            op2 : in  STD_LOGIC_VECTOR (31 downto 0);
            aluOp : in  STD_LOGIC_VECTOR (5 downto 0);
+			  C : in  STD_LOGIC;
            result : out  STD_LOGIC_VECTOR (31 downto 0));
 end ArithmeticLogicUnit;
 
