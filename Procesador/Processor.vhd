@@ -38,9 +38,9 @@ architecture Behavioral of Processor is
 	
 	COMPONENT RegisterFile
 	PORT(
-		rs1 : IN std_logic_vector(4 downto 0);
-		rs2 : IN std_logic_vector(4 downto 0);
-		rd : IN std_logic_vector(4 downto 0);
+		rs1 : IN std_logic_vector(5 downto 0);
+		rs2 : IN std_logic_vector(5 downto 0);
+		rd : IN std_logic_vector(5 downto 0);
 		rst : IN std_logic;
 		DWR : IN std_logic_vector(31 downto 0);          
 		rs1Out : OUT std_logic_vector(31 downto 0);
@@ -95,16 +95,31 @@ architecture Behavioral of Processor is
 	COMPONENT ProcessorStateRegister
 	PORT(
 		NZVC : IN std_logic_vector(3 downto 0);
-		nCWP : IN std_logic_vector(3 downto 0);          
+		nCWP : IN std_logic;          
 		C : OUT std_logic;
-		CWP : OUT std_logic_vector(3 downto 0)
+		CWP : OUT std_logic
+		);
+	END COMPONENT;
+	
+	COMPONENT WindowsManager
+	PORT(
+		rs1 : IN std_logic_vector(4 downto 0);
+		rs2 : IN std_logic_vector(4 downto 0);
+		rd : IN std_logic_vector(4 downto 0);
+		op : IN std_logic_vector(1 downto 0);
+		op3 : IN std_logic_vector(5 downto 0);
+		cwp : IN std_logic;          
+		nrs1 : OUT std_logic_vector(5 downto 0);
+		nrs2 : OUT std_logic_vector(5 downto 0);
+		nrd : OUT std_logic_vector(5 downto 0);
+		ncwp : OUT std_logic
 		);
 	END COMPONENT;
 
 signal a, b, c, inst, crs1, crs2, res, roi, imm : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
-signal carry : STD_LOGIC;
-signal nzvc, ncwp, cwp : STD_LOGIC_VECTOR (3 downto 0) := "0000";
-signal op : STD_LOGIC_VECTOR (5 downto 0) := "000000";
+signal carry, cwp, ncwp : STD_LOGIC;
+signal nzvc : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+signal op, nrs1, nrs2, nrd : STD_LOGIC_VECTOR (5 downto 0) := "000000";
 
 
 begin
@@ -136,9 +151,9 @@ begin
 	);
 	
 	RF: RegisterFile PORT MAP(
-		rs1 => inst(18 downto 14),
-		rs2 => inst(4 downto 0),
-		rd => inst(29 downto 25),
+		rs1 => nrs1,
+		rs2 => nrs2,
+		rd => nrd,
 		rst => rst,
 		DWR => res,
 		rs1Out => crs1,
@@ -184,6 +199,19 @@ begin
 		nCWP => ncwp,
 		C => carry,
 		CWP => cwp
+	);
+
+	WM: WindowsManager PORT MAP(
+		rs1 => inst(18 downto 14),
+		rs2 => inst(4 downto 0),
+		rd => inst(29 downto 25),
+		op => inst(31 downto 30),
+		op3 => inst(24 downto 19),
+		cwp => cwp,
+		nrs1 => nrs1,
+		nrs2 => nrs2,
+		nrd => nrd,
+		ncwp => ncwp
 	);
 	
 	result <= res;

@@ -4,9 +4,9 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity RegisterFile is
-    Port ( rs1 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rs2 : in  STD_LOGIC_VECTOR (4 downto 0);
-           rd : in  STD_LOGIC_VECTOR (4 downto 0);
+    Port ( rs1 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rs2 : in  STD_LOGIC_VECTOR (5 downto 0);
+           rd : in  STD_LOGIC_VECTOR (5 downto 0);
            rst : in  STD_LOGIC;
            DWR : in  STD_LOGIC_VECTOR (31 downto 0);
            rs1Out : out  STD_LOGIC_VECTOR (31 downto 0);

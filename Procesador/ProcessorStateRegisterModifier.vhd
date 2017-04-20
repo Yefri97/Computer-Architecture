@@ -18,15 +18,24 @@ begin
 process(aluOp, result, msb1, msb2) begin
 
 	if (aluOp(5) = '1') then
+		-- negative
 		nzvc(3) <= result(31);
+		-- zero
 		if (result = "00000000000000000000000000000000") then
 			nzvc(2) <= '1';
 		else
 			nzvc(2) <= '0';
 		end if;
+		-- overflow or carry
 		if (aluOp(1) = '0') then
-			nzvc(1) <= (msb1 and msb2 and not result(31)) or (not msb1 and not msb2 and result(31));
-			nzvc(0) <= (msb1 and msb2) or (not result(31) and (msb1 or msb2));
+			if (aluOp(0) = '0') then
+				nzvc(1) <= (msb1 and msb2 and not result(31)) or (not msb1 and not msb2 and result(31));
+				nzvc(0) <= (msb1 and msb2) or (not result(31) and (msb1 or msb2));
+			else
+				nzvc(1) <= (msb1 and not msb2 and not result(31)) or (not msb1 and msb2 and result(31));
+				nzvc(0) <= (not msb1 and msb2) or (result(31) and (not msb1 or msb2));
+			end if;
+			
 		else
 			nzvc(1) <= '0';
 			nzvc(0) <= '0';
