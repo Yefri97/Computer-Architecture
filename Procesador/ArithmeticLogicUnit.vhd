@@ -18,10 +18,22 @@ begin
 process (aluOp, op1, op2)
 begin
 	case (aluOp) is
-		when "000000" => result <= op1 + op2;
-		when "000001" => result <= op1 - op2;
-		when "000010" => result <= op1 or op2;
-		when "000011" => result <= op1 and op2;
+		
+		when "000000" => result <= op1 + op2; -- ADD
+		when "010000" => result <= op1 + op2; -- ADDcc
+		when "001000" => result <= op1 + op2 + C; -- ADDX
+		when "011000" => result <= op1 + op2 + C; -- ADDXcc
+		
+		when "000100" => result<= op1 - op2; -- SUB
+		when "010100" => result <= op1 - op2; -- SUBcc
+		when "001100" => result <= op1 - op2 - C; -- SUBX
+		when "011100" => result <= op1 - op2 - C; -- SUBXcc
+		
+		when "000001" => result <= op1 and op2; -- AND
+		when "010001" => result <= op1 and op2; -- ANDcc
+		when "000010" => result <= op1 or op2; -- OR
+		when "010010" => result <= op1 or op2; -- ORcc
+		
 		when others => result <= op1;
 	end case;
 end process;

@@ -12,11 +12,15 @@ end ProcessorStateRegister;
 
 architecture Behavioral of ProcessorStateRegister is
 
-signal psr : std_logic_vector (31 downto 0);
+signal psr : std_logic_vector (31 downto 0) := x"00000000";
 
 begin
 
+psr(0) <= nCWP;
 psr(23 downto 20) <= NZVC;
+
+CWP <= psr(0);
+C <= psr(20);
 
 end Behavioral;
 

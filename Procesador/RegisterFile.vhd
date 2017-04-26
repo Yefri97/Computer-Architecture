@@ -15,17 +15,17 @@ end RegisterFile;
 
 architecture Behavioral of RegisterFile is
 
-type ram_type is array (31 downto 0) of std_logic_vector (31 downto 0);
+type ram_type is array (63 downto 0) of std_logic_vector (31 downto 0);
 signal RAM : ram_type;
 
 begin
 
-process (rst, rd, dwr, ram, rs1, rs2)
+process (rst, rd, DWR, RAM, rs1, rs2)
 begin
 	if (rst = '1') then
 		RAM(0) <= x"00000000";
 	else
-		if (not(rd = "00000")) then
+		if (not(rd = "000000")) then
 			RAM(conv_integer(rd)) <= DWR;
 		end if;
 		rs1Out <= RAM(conv_integer(rs1));

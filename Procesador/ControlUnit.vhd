@@ -19,13 +19,23 @@ begin
 		when "10" =>
 			case (op3) is
 				when "000000" => aluOp <= "000000"; -- ADD
-				when "000100" => aluOp <= "000001"; -- SUB
+				when "010000" => aluOp <= "010000"; -- ADDcc
+				when "001000" => aluOp <= "001000"; -- ADDX
+				when "011000" => aluOp <= "011000"; -- ADDXcc
+				
+				when "000100" => aluOp <= "000100"; -- SUB
+				when "010100" => aluOp <= "010100"; -- SUBcc
+				when "001100" => aluOp <= "001100"; -- SUBX
+				when "011100" => aluOp <= "011100"; -- SUBXcc
+				
+				when "000001" => aluOp <= "000001"; -- AND
+				when "010001" => aluOp <= "010001"; -- ANDcc
 				when "000010" => aluOp <= "000010"; -- OR
-				when "000001" => aluOp <= "000011"; -- AND
-				when "111100" => aluOp <= "100000"; -- ADDcc
-				when "111101" => aluOp <= "100001"; -- SUBcc
-				when "111110" => aluOp <= "100010"; -- ORcc
-				when "111011" => aluOp <= "100011"; -- ANDcc
+				when "010010" => aluOp <= "010010"; -- ORcc
+				
+				when "111100" => aluOp <= "000000"; -- SAVE
+				when "111101" => aluOp <= "000000"; -- RESTORE
+				
 				when others => aluOp <= "111111";
 			end case;
 		when others => aluOp <= "111111";
