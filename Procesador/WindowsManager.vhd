@@ -18,15 +18,17 @@ end WindowsManager;
 
 architecture Behavioral of WindowsManager is
 
+signal temp : std_logic := '0';
+
 begin
 process(op, op3, cwp, rs1, rs2, rd)
 begin
 
 if (op = "10" and (op3 = "111100" or op3 = "111101")) then
-	ncwp <= not(cwp);
-else
-	ncwp <= cwp;
+	temp <= not(temp);
 end if;
+
+ncwp <= temp;
 
 if (cwp = '0') then
 	nrs1 <= "0"&rs1;
@@ -42,7 +44,7 @@ else
 	else
 		nrs1 <= "0"&rs1;
 	end if;
-  
+
 	if (rs2 >= "011000" and rs2 <= "011111") then
 		nrs2 <= rs2 - "010000";
 	elsif (rs2 >= "010000" and rs2 <= "010111") then
@@ -52,7 +54,7 @@ else
 	else
 		nrs2 <= "0"&rs2;
 	end if;
-  
+
 	if (rd >= "011000" and rd <= "011111") then
 		nrd <= rd - "010000";
 	elsif (rd >= "010000" and rd <= "010111") then
@@ -62,9 +64,8 @@ else
 	else
 		nrd <= "0"&rd;
 	end if;
-	
+
 end if;
 
 end process;
 end Behavioral;
-
