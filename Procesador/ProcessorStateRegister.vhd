@@ -19,7 +19,7 @@ begin
 psr(0) <= nCWP;
 psr(23 downto 20) <= NZVC;
 
-CWP <= psr(0);
+CWP <= nCWP;
 C <= psr(20);
 
 end Behavioral;

@@ -84,6 +84,7 @@ architecture Behavioral of Processor is
 	
 	COMPONENT ProcessorStateRegisterModifier
 	PORT(
+		rst : IN std_logic;
 		msb1 : IN std_logic;
 		msb2 : IN std_logic;
 		result : IN std_logic_vector(31 downto 0);
@@ -187,6 +188,7 @@ begin
 	);
 	
 	PSRModifier: ProcessorStateRegisterModifier PORT MAP(
+		rst => rst,
 		msb1 => crs1(31),
 		msb2 => roi(31),
 		result => res,
