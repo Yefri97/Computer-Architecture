@@ -42,16 +42,21 @@ architecture Behavioral of Processor is
 		rs2 : IN std_logic_vector(5 downto 0);
 		rd : IN std_logic_vector(5 downto 0);
 		rst : IN std_logic;
-		DWR : IN std_logic_vector(31 downto 0);          
+		DWR : IN std_logic_vector(31 downto 0);
+		WREN: IN std_logic;
 		rs1Out : OUT std_logic_vector(31 downto 0);
-		rs2Out : OUT std_logic_vector(31 downto 0)
+		rs2Out : OUT std_logic_vector(31 downto 0);
+		rdOut : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
 	
 	COMPONENT ControlUnit
 	PORT(
 		op : IN std_logic_vector(1 downto 0);
-		op3 : IN std_logic_vector(5 downto 0);          
+		op3 : IN std_logic_vector(5 downto 0);
+		WREN : OUT std_logic;
+		WRENMEM : OUT std_logic;
+		SRC : OUT std_logic;
 		aluOp : OUT std_logic_vector(5 downto 0)
 		);
 	END COMPONENT;
@@ -116,9 +121,18 @@ architecture Behavioral of Processor is
 		ncwp : OUT std_logic
 		);
 	END COMPONENT;
+	
+	COMPONENT DataMemory
+	PORT(
+		ADDRESS : IN std_logic_vector(4 downto 0);
+		CRD : IN std_logic_vector(31 downto 0);
+		WRENMEM : IN std_logic;          
+		CMEM : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
 
-signal a, b, c, inst, crs1, crs2, res, roi, imm : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
-signal carry, cwp, ncwp : STD_LOGIC;
+signal a, b, c, inst, crs1, crs2, crd, res, roi, imm, dwr, cmem : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
+signal carry, cwp, ncwp, wren, wrenmem, src : STD_LOGIC;
 signal nzvc : STD_LOGIC_VECTOR (3 downto 0) := "0000";
 signal op, nrs1, nrs2, nrd : STD_LOGIC_VECTOR (5 downto 0) := "000000";
 
@@ -156,14 +170,19 @@ begin
 		rs2 => nrs2,
 		rd => nrd,
 		rst => rst,
-		DWR => res,
+		DWR => dwr,
+		WREN => wren,
 		rs1Out => crs1,
-		rs2Out => crs2
+		rs2Out => crs2,
+		rdOut => crd
 	);
 	
 	CU: ControlUnit PORT MAP(
 		op => inst(31 downto 30),
 		op3 => inst(24 downto 19),
+		WREN => wren,
+		WRENMEM => wrenmem,
+		SRC => src,
 		aluOp => op
 	);
 	
@@ -175,7 +194,7 @@ begin
 		result => res
 	);
 	
-	MUX: Multiplexor PORT MAP(
+	MUX0: Multiplexor PORT MAP(
 		input0 => crs2,
 		input1 => imm,
 		cond => inst(13),
@@ -216,6 +235,20 @@ begin
 		ncwp => ncwp
 	);
 	
-	result <= res;
+	DM: DataMemory PORT MAP(
+		ADDRESS => res(4 downto 0),
+		CRD => crd,
+		WRENMEM => wrenmem,
+		CMEM => cmem
+	);
+	
+	MUX1: Multiplexor PORT MAP(
+		input0 => cmem,
+		input1 => res,
+		cond => src,
+		output => dwr
+	);
+	
+	result <= dwr;
 	
 end Behavioral;

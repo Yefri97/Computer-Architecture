@@ -6,6 +6,9 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity ControlUnit is
     Port ( op : in  STD_LOGIC_VECTOR (1 downto 0);
            op3 : in  STD_LOGIC_VECTOR (5 downto 0);
+			  WREN : out  STD_LOGIC;
+			  WRENMEM : out  STD_LOGIC;
+			  SRC : out  STD_LOGIC;
            aluOp : out  STD_LOGIC_VECTOR (5 downto 0));
 end ControlUnit;
 
@@ -36,6 +39,23 @@ begin
 				when "111100" => aluOp <= "000000"; -- SAVE
 				when "111101" => aluOp <= "000000"; -- RESTORE
 				
+				when others => aluOp <= "111111";
+			end case;
+			WREN <= '1';
+			WRENMEM <= '0';
+			SRC <= '1';
+		when "11" =>
+			case (op3) is
+				when "000000" => -- LOAD
+					aluOp <= "000010";
+					WREN <= '1';
+					WRENMEM <= '0';
+					SRC <= '0';
+				when "000100" => -- STORE
+					aluOp <= "000010";
+					WREN <= '0';
+					WRENMEM <= '1';
+					SRC <= '0';
 				when others => aluOp <= "111111";
 			end case;
 		when others => aluOp <= "111111";
