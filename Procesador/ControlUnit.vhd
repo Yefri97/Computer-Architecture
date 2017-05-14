@@ -47,12 +47,12 @@ begin
 		when "11" =>
 			case (op3) is
 				when "000000" => -- LOAD
-					aluOp <= "000010";
+					aluOp <= "000000";
 					WREN <= '1';
 					WRENMEM <= '0';
 					SRC <= '0';
 				when "000100" => -- STORE
-					aluOp <= "000010";
+					aluOp <= "000000";
 					WREN <= '0';
 					WRENMEM <= '1';
 					SRC <= '0';

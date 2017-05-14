@@ -21,7 +21,7 @@ process (WRENMEM) begin
 	if (WRENMEM = '1') then
 		RAM(conv_integer(ADDRESS)) <= CRD;
 	end if;
-	CMEM <= RAM(conv_integer(ADDRESS));
+	CMEM <= CRD;
 end process;
 
 end Behavioral;
