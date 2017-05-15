@@ -7,7 +7,8 @@ entity ProcessorStateRegister is
     Port ( NZVC : in  STD_LOGIC_VECTOR (3 downto 0);
            nCWP : in  STD_LOGIC;
            C : out  STD_LOGIC;
-           CWP : out  STD_LOGIC);
+           CWP : out  STD_LOGIC;
+			  ICC : out  STD_LOGIC_VECTOR (3 downto 0));
 end ProcessorStateRegister;
 
 architecture Behavioral of ProcessorStateRegister is
@@ -21,6 +22,7 @@ psr(23 downto 20) <= NZVC;
 
 CWP <= nCWP;
 C <= psr(20);
+ICC <= NZVC;
 
 end Behavioral;
 

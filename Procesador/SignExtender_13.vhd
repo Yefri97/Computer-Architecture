@@ -1,12 +1,14 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity SignExtender is
+entity SignExtender_13 is
     Port ( input : in  STD_LOGIC_VECTOR (12 downto 0);
            output : out  STD_LOGIC_VECTOR (31 downto 0));
-end SignExtender;
+end SignExtender_13;
 
-architecture Behavioral of SignExtender is
+architecture Behavioral of SignExtender_13 is
 
 begin
 process (input)

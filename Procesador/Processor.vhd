@@ -54,9 +54,13 @@ architecture Behavioral of Processor is
 	PORT(
 		op : IN std_logic_vector(1 downto 0);
 		op3 : IN std_logic_vector(5 downto 0);
+		icc : IN std_logic_vector(3 downto 0);
+		cond : IN std_logic_vector(3 downto 0);
 		WREN : OUT std_logic;
 		WRENMEM : OUT std_logic;
-		SRC : OUT std_logic;
+		RFDEST : OUT std_logic;
+		RFSRC : OUT std_logic_vector(1 downto 0);
+		PCSRC : OUT std_logic_vector(1 downto 0);
 		aluOp : OUT std_logic_vector(5 downto 0)
 		);
 	END COMPONENT;
@@ -71,7 +75,7 @@ architecture Behavioral of Processor is
 		);
 	END COMPONENT;
 	
-	COMPONENT Multiplexor
+	COMPONENT Multiplexor_2_32
 	PORT(
 		input0 : IN std_logic_vector(31 downto 0);
 		input1 : IN std_logic_vector(31 downto 0);
@@ -80,9 +84,23 @@ architecture Behavioral of Processor is
 		);
 	END COMPONENT;
 	
-	COMPONENT SignExtender
+	COMPONENT SignExtender_13
 	PORT(
-		input : IN std_logic_vector(12 downto 0);          
+		input : IN std_logic_vector(12 downto 0);
+		output : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT SignExtender_22
+	PORT(
+		input : IN std_logic_vector(21 downto 0);
+		output : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT SignExtender_30
+	PORT(
+		input : IN std_logic_vector(29 downto 0);
 		output : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
@@ -103,7 +121,8 @@ architecture Behavioral of Processor is
 		NZVC : IN std_logic_vector(3 downto 0);
 		nCWP : IN std_logic;          
 		C : OUT std_logic;
-		CWP : OUT std_logic
+		CWP : OUT std_logic;
+		ICC : OUT std_logic_vector (3 downto 0)
 		);
 	END COMPONENT;
 	
@@ -130,11 +149,33 @@ architecture Behavioral of Processor is
 		CMEM : OUT std_logic_vector(31 downto 0)
 		);
 	END COMPONENT;
+	
+	COMPONENT Multiplexor_2_6
+	PORT(
+		input0 : IN std_logic_vector(5 downto 0);
+		input1 : IN std_logic_vector(5 downto 0);
+		cond : IN std_logic;          
+		output : OUT std_logic_vector(5 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT Multiplexor_4_32
+	PORT(
+		input0 : IN std_logic_vector(31 downto 0);
+		input1 : IN std_logic_vector(31 downto 0);
+		input2 : IN std_logic_vector(31 downto 0);
+		input3 : IN std_logic_vector(31 downto 0);
+		cond : IN std_logic_vector(1 downto 0);          
+		output : OUT std_logic_vector(31 downto 0)
+		);
+	END COMPONENT;
 
-signal a, b, c, inst, crs1, crs2, crd, res, roi, imm, dwr, cmem : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
-signal carry, cwp, ncwp, wren, wrenmem, src : STD_LOGIC;
-signal nzvc : STD_LOGIC_VECTOR (3 downto 0) := "0000";
-signal op, nrs1, nrs2, nrd : STD_LOGIC_VECTOR (5 downto 0) := "000000";
+signal a, b, c, d : STD_LOGIC_VECTOR (31 downto 0);
+signal inst, crs1, crs2, crd, res, roi, imm, dwr, cmem, scll, call, sbrch, branch : STD_LOGIC_VECTOR (31 downto 0);
+signal rfsrc, pcsrc : STD_LOGIC_VECTOR (1 downto 0);
+signal carry, cwp, ncwp, wren, wrenmem, rfdest : STD_LOGIC;
+signal nzvc, icc : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+signal op, nrs1, nrs2, nrd, nnrd : STD_LOGIC_VECTOR (5 downto 0) := "000000";
 
 
 begin
@@ -153,10 +194,10 @@ begin
 		dataOut => c
 	);
 
-	ADD: Adder PORT MAP(
-		op1 => "00000000000000000000000000000001",
+	ADDpc: Adder PORT MAP(
+		op1 => x"00000001",
 		op2 => b,
-		result => a
+		result => d
 	);
 
 	IM: InstructionMemory PORT MAP(
@@ -165,10 +206,17 @@ begin
 		dataOut => inst
 	);
 	
+	MUXRD: Multiplexor_2_6 PORT MAP(
+		input0 => nrd,
+		input1 => "001111",
+		cond => rfdest,
+		output => nnrd
+	);
+	
 	RF: RegisterFile PORT MAP(
 		rs1 => nrs1,
 		rs2 => nrs2,
-		rd => nrd,
+		rd => nnrd,
 		rst => rst,
 		DWR => dwr,
 		WREN => wren,
@@ -180,10 +228,21 @@ begin
 	CU: ControlUnit PORT MAP(
 		op => inst(31 downto 30),
 		op3 => inst(24 downto 19),
+		icc => icc,
+		cond => inst(28 downto 25),
+		RFDEST => rfdest,
+		RFSRC => rfsrc,
+		PCSRC => pcsrc,
 		WREN => wren,
 		WRENMEM => wrenmem,
-		SRC => src,
 		aluOp => op
+	);
+	
+	MUXOP2: Multiplexor_2_32 PORT MAP(
+		input0 => crs2,
+		input1 => imm,
+		cond => inst(13),
+		output => roi
 	);
 	
 	ALU: ArithmeticLogicUnit PORT MAP(
@@ -194,14 +253,7 @@ begin
 		result => res
 	);
 	
-	MUX0: Multiplexor PORT MAP(
-		input0 => crs2,
-		input1 => imm,
-		cond => inst(13),
-		output => roi
-	);
-
-	SEU: SignExtender PORT MAP(
+	SEUimm: SignExtender_13 PORT MAP(
 		input => inst(12 downto 0),
 		output => imm
 	);
@@ -219,7 +271,8 @@ begin
 		NZVC => nzvc,
 		nCWP => ncwp,
 		C => carry,
-		CWP => cwp
+		CWP => cwp,
+		ICC => icc
 	);
 
 	WM: WindowsManager PORT MAP(
@@ -242,11 +295,44 @@ begin
 		CMEM => cmem
 	);
 	
-	MUX1: Multiplexor PORT MAP(
+	MUXRFS: Multiplexor_4_32 PORT MAP(
 		input0 => cmem,
 		input1 => res,
-		cond => src,
+		input2 => c,
+		input3 => res,
+		cond => rfsrc,
 		output => dwr
+	);
+	
+	SEUbranch: SignExtender_22 PORT MAP(
+		input => inst(21 downto 0),
+		output => sbrch
+	);
+	
+	ADDbranch: Adder PORT MAP(
+		op1 => c,
+		op2 => sbrch,
+		result => branch
+	);
+	
+	SEUcall: SignExtender_30 PORT MAP(
+		input => inst(29 downto 0),
+		output => scll
+	);
+	
+	ADDcall: Adder PORT MAP(
+		op1 => c,
+		op2 => scll,
+		result => call
+	);
+	
+	MUXPCS: Multiplexor_4_32 PORT MAP(
+		input0 => call,
+		input1 => branch,
+		input2 => d,
+		input3 => res,
+		cond => pcsrc,
+		output => a
 	);
 	
 	result <= dwr;

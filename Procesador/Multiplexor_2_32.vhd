@@ -3,14 +3,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-entity Multiplexor is
+entity Multiplexor_2_32 is
     Port ( input0 : in  STD_LOGIC_VECTOR (31 downto 0);
            input1 : in  STD_LOGIC_VECTOR (31 downto 0);
            cond : in  STD_LOGIC;
            output : out  STD_LOGIC_VECTOR (31 downto 0));
-end Multiplexor;
+end Multiplexor_2_32;
 
-architecture Behavioral of Multiplexor is
+architecture Behavioral of Multiplexor_2_32 is
 
 begin
 process (cond, input0, input1)
