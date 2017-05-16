@@ -26,20 +26,19 @@ process (op, op3)
 begin
 	case (op) is
 		when "00" => -- BRANCH
-			WREN <= '1';
+			WREN <= '0';
 			WRENMEM <= '0';
 			RFDEST <= '0';
 			RFSRC <= "01";
 			PCSRC <= "10";
 			aluOp <= "000000";
-			N <= icc(3); Z <= icc(2); V <= icc(1); C <= icc(0);
-			if ((cond = "1000") or																		-- BA
-				 (cond = "1001" and Z = '0') or 														-- BNE
-				 (cond = "0001" and Z = '1') or 														-- BE
-				 (cond = "1010" and (Z = '0' and N = '0')) or 									-- BG
-				 (cond = "0010" and (Z = '1' or N = '1')) or 									-- BLE
-				 (cond = "1011" and N = '0') or 														-- BGE
-				 (cond = "0011" and N = '1') 															-- BL
+			if ((cond = "1000") or														-- BA
+				 (cond = "1001" and icc(2) = '0') or 								-- BNE
+				 (cond = "0001" and icc(2) = '1') or 								-- BE
+				 (cond = "1010" and (icc(2) = '0' and icc(3) = '0')) or 		-- BG
+				 (cond = "0010" and (icc(2) = '1' or icc(3) = '1')) or 		-- BLE
+				 (cond = "1011" and icc(3) = '0') or 								-- BGE
+				 (cond = "0011" and icc(3) = '1') 									-- BL
 			) then
 				PCSRC <= "01";
 			end if;

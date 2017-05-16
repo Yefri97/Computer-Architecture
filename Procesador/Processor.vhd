@@ -298,7 +298,7 @@ begin
 	MUXRFS: Multiplexor_4_32 PORT MAP(
 		input0 => cmem,
 		input1 => res,
-		input2 => c,
+		input2 => c - x"00000000",
 		input3 => res,
 		cond => rfsrc,
 		output => dwr
